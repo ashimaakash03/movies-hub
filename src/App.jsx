@@ -2,6 +2,7 @@
 
 import Search from "./components/Search.jsx";
 import {useEffect, useState} from "react";
+import Loading from "./components/Loading.jsx";
 
 
 const API_BASE_URL = 'https://api.themoviedb.org/3';
@@ -31,12 +32,12 @@ const App = () => {
                 throw new Error("Could not fetch movies");
             }
             const data = await response.json();
-            console.log(data);
-            if (data.response === false) {
+            console.log(data.results);
+            if (data.results.length === 0) {
                 setErrorMessage(data.message);
                 setMoviesList([]);
             }
-            setMoviesList(data.response);
+            setMoviesList(data.results);
         } catch (error) {
             console.log(`Error fetching movies ${error}`);
             setErrorMessage('Error fetching movies. Please try again later.');
@@ -57,9 +58,11 @@ const App = () => {
                     <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
                 </header>
                 <section className='all-movies'>
-                    <h2>All Movies...</h2>
-                    {isLoading ? <p className="text-white">Loading...</p> : errorMessage ?
-                        <p className="text-red-500">{errorMessage}</p> : <h2>List of Movies</h2>}
+                    <h2 className="mt-[40px]">All Movies...</h2>
+                    {isLoading ? <Loading/> : errorMessage ?
+                        <p className="text-red-500">{errorMessage}</p> : <ul>{moviesList.map(movie => (
+                            <li key={movie.id} className="text-white">{movie.title}</li>
+                        ))}</ul>}
                 </section>
             </div>
         </main>
