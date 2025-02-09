@@ -2,6 +2,7 @@
 
 import Search from "./components/Search.jsx";
 import {useEffect, useState} from "react";
+import {useDebounce} from "react-use";
 import Loading from "./components/Loading.jsx";
 import MovieCard from "./components/MovieCard.jsx";
 
@@ -21,6 +22,10 @@ const App = () => {
     const [errorMessage, setErrorMessage] = useState(null);
     const [moviesList, setMoviesList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
+    //optimising efficiency of search movie using useDebounce hook for 2s delay
+    useDebounce(() => setDebouncedSearchTerm(searchTerm), 2000, [searchTerm])
 
     const fetchMovies = async (searchQuery = '') => {
         setIsLoading(true);
@@ -30,7 +35,6 @@ const App = () => {
                 `${API_BASE_URL}/search/movie?query=${encodeURI(searchQuery)}`
                 : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
             const response = await fetch(endpoint, API_OPTIONS);
-            //console.log(response);
             if (!response.ok) {
                 throw new Error("Could not fetch movies");
             }
@@ -49,8 +53,8 @@ const App = () => {
         }
     }
     useEffect(() => {
-        fetchMovies(searchTerm);
-    }, [searchTerm])
+        fetchMovies(debouncedSearchTerm);
+    }, [debouncedSearchTerm])
     return (
         <main>
             <div className="pattern"/>
